@@ -2,7 +2,7 @@
 
 local dest="$PWD"
 local lang='cpp'
-local template_dir="${${(%):-%N}:h}/../templates"
+local template_dir="${$( realpath ${${(%):-%N}} ):h}/../templates"
 
 while getopts 'd:l:t:h' flag; do
     case "$flag" in
