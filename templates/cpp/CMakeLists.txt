@@ -23,6 +23,15 @@ catkin_package(
 DEPENDENCIES
 )
 
+add_library(PKG_NAME
+  src/PKG_NAME.cpp include/PKG_NAME.h
+)
+
+target_link_libraries(PKG_NAME
+  ${Boost_LIBRARIES}
+  ${catkin_LIBRARIES}
+)
+
 include_directories(
   include
   ${Boost_INCLUDE_DIRS}
@@ -33,7 +42,7 @@ add_executable(PKG_NAME_node
   src/PKG_NAME_node.cpp
 )
 
-target_link_libraries(PKG_NAME
+target_link_libraries(PKG_NAME_node
   ${Boost_LIBRARIES}
   ${catkin_LIBRARIES}
 )
