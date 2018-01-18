@@ -1,0 +1,137 @@
+#!/usr/bin/env zsh
+
+local dest="$PWD"
+local lang='cpp'
+local template_dir="${${(%):-%N}:h}/../templates"
+
+while getopts 'd:l:t:h' flag; do
+    case "$flag" in
+        d)
+            dest="$OPTARG"
+            ;;
+        l)
+            lang="$OPTARG"
+            ;;
+        t)
+            template_dir="$OPTARG"
+            ;;
+        h)
+            echo "Usage: $0 [-h] [-d DESTINATION] [-l cpp|python] [-t TEMPLATE_DIR] <PKG_NAME> [DEPS]"
+            exit 0
+    esac
+
+done
+shift $(( $OPTIND - 1 ))
+
+local pkg_name="$1"
+local -a deps
+deps=( $argv[2,-1] )
+
+copy_dir() {
+    local src="$1"
+    local dst="$2"
+
+    if ! [[ -d $src ]]; then
+        echo "no such directory: $src" >&2
+        exit 1
+    elif [[ -d $dst ]]; then
+        echo "destination already exists: $dst" >&2
+        exit 1
+    fi
+
+    cp -r "${src}/" "${dst}/"
+}
+
+rename_files() {
+    local dir="$1"
+    local name="$2"
+
+    setopt nonomatch
+    # First rename files
+    for f in "${dir}"/**/*PKG_NAME*(.); do
+        if ! [[ -e $f ]]; then
+            continue
+        fi
+        mv "$f" "$( echo "$f" | sed -e "s/\(.*\)PKG_NAME/\\1${name}/" )"
+    done
+    # Then directories
+    for f in "${dir}"/**/*PKG_NAME*(/); do
+        if ! [[ -e $f ]]; then
+            continue
+        fi
+        mv "$f" "$( echo "$f" | sed -e "s/\(.*\)PKG_NAME/\\1${name}/" )"
+    done
+}
+
+read_config() {
+    local config_file="${XDG_CONFIG_HOME:-$HOME/.config}/monja/user.conf"
+    local key="$1"
+
+    if ! [[ -f $config_file ]]; then
+        echo -n ''
+        return
+    fi
+
+    awk -F ' *: *' "!/^#/ && /$key/{ print \$2 }" "$config_file"
+}
+
+modify_source() {
+    local dir="$1"
+    local name="$2"
+    local lang="$3"
+    local -a deps
+    deps=( $argv[4,-1] )
+    local my_name="$( git config --global user.name )"
+    local my_email="$( git config --global user.email )"
+    local my_github
+
+    my_name="$( read_config name )"
+    my_email="$( read_config email )"
+    my_github="$( read_config github )"
+
+    for f in "${dir}"/**/*(.); do
+        sed -i -e "s/PKG_NAME/${name}/g" "$f"
+        sed -i -e "s/MY_NAME/${my_name}/g" "$f"
+        sed -i -e "s/MY_EMAIL/${my_email}/g" "$f"
+        if [[ -n $my_github ]]; then
+            sed -i -e "s/MY_GITHUB/${my_github}/g" "$f"
+        else
+            sed -i -e "/MY_GITHUB/d" "$f"
+        fi
+    done
+
+    # package.xml
+    local lang_dep
+    local -a build_depend
+    local -a run_depend
+    local -a cmake_depend
+    if [[ $lang == cpp ]]; then
+        lang_dep='roscpp'
+    elif [[ $lang == python ]]; then
+        lang_dep='rospy'
+    fi
+    if ! (( $deps[(I)$lang_dep] )); then
+        deps=( $lang_dep ${deps[@]} )
+    fi
+
+    for d in $deps; do
+        build_depend+="  <build_depend>$d</build_depend>"
+        run_depend+="  <run_depend>$d</run_depend>"
+        cmake_depend+="  $d"
+    done
+
+    if [[ $lang == cpp ]]; then
+        sed -i -e "s!DEPENDENCIES!${(j:\n:)build_depend}\n${(j:\n:)run_depend}!" ${dir}/package.xml
+    elif [[ $lang == python ]]; then
+        sed -i -e "s!DEPENDENCIES!${(j:\n:)run_depend}!" ${dir}/package.xml
+    fi
+
+    # CMakeLists.txt
+    sed -i -e "s!DEPENDENCIES!${(j:\n:)cmake_depend}!" ${dir}/CMakeLists.txt
+}
+
+copy_dir "${template_dir}/${lang}" "${dest}/${pkg_name}"
+rename_files "${dest}/${pkg_name}" "${pkg_name}"
+modify_source "${dest}/${pkg_name}" "${pkg_name}" "${lang}" ${deps}
+
+echo 'Done!'

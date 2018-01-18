@@ -1,0 +1,5 @@
+<?xml version="1.0"?>
+<launch>
+  <node pkg="PKG_NAME" type="PKG_NAME_node.py" name="PKG_NAME" >
+  </node>
+</launch>

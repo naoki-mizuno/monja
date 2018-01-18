@@ -1,0 +1,7 @@
+*
+!bin/
+!bin/*
+!templates/
+!templates/*
+!README.md
+!.gitignore

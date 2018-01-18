@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<package>
+  <name>PKG_NAME</name>
+  <version>0.1.0</version>
+  <description>PKG_NAME package</description>
+
+  <maintainer email="MY_EMAIL">MY_NAME</maintainer>
+
+  <license>MIT</license>
+
+  <url type="website">https://github.com/MY_GITHUB/PKG_NAME</url>
+
+  <author>MY_NAME</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+DEPENDENCIES
+</package>
