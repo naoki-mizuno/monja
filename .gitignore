@@ -5,3 +5,5 @@
 !templates/*
 !README.md
 !.gitignore
+!images/
+!images/*
