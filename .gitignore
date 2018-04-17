@@ -4,6 +4,7 @@
 !templates/
 !templates/*
 !README.md
+!LICENSE.txt
 !.gitignore
 !images/
 !images/*

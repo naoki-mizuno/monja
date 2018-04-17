@@ -12,5 +12,6 @@
 !README.*
 !Makefile
 !CMakeLists.txt
+!LICENSE.txt
 !package.xml
 !.gitignore

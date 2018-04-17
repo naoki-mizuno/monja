@@ -2,7 +2,7 @@
 <div style="margin: 0 auto; max-width: 100%">
     <img src="./images/monja.jpg" alt="monja" title="MONJA GIRL"/>
 </div>
-Make ONce and Just Adopt. Create ROS packages with ease.
+Create ROS packages with ease.
 
 
 ## Installation
@@ -27,7 +27,7 @@ By default, it will create the new package in the current directory. Change it
 with the `-d` option:
 
 ```
-monja -d some/other/path my_pkg
+monja -d ./src my_pkg
 ```
 
 You can also specify dependencies:
