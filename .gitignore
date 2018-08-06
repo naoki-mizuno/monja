@@ -9,3 +9,4 @@
 !images/
 !images/*
 !CMakeLists.txt
+!package.xml

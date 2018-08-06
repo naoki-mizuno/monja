@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<package format="2" >
+  <name>monja</name>
+  <version>0.1.0</version>
+  <description>Create ROS packages with ease</description>
+
+  <maintainer email="mizuno.naoki@rm.is.tohoku.ac.jp"></maintainer>
+
+  <license>MIT</license>
+
+  <author>Naoki Mizuno</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+</package>
