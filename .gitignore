@@ -8,3 +8,4 @@
 !.gitignore
 !images/
 !images/*
+!CMakeLists.txt
