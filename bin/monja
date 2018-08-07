@@ -3,6 +3,7 @@
 local dest="$PWD"
 local lang='cpp'
 local template_dir="${$( realpath ${${(%):-%N}} ):h}/../templates"
+local image_dir="${$( realpath ${${(%):-%N}} ):h}/../images"
 
 while getopts 'd:l:t:h' flag; do
     case "$flag" in
@@ -130,6 +131,11 @@ modify_source() {
     sed -i -e "s!DEPENDENCIES!${(j:\n:)cmake_depend}!" ${dir}/CMakeLists.txt
 }
 
+show_monja_girl(){
+    cat ${image_dir}/monja.txt
+}
+
+show_monja_girl
 copy_dir "${template_dir}/${lang}" "${dest}/${pkg_name}"
 rename_files "${dest}/${pkg_name}" "${pkg_name}"
 modify_source "${dest}/${pkg_name}" "${pkg_name}" "${lang}" ${deps}
