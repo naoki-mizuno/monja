@@ -103,6 +103,7 @@ modify_source() {
 
     # package.xml
     local lang_dep
+    local -a depend
     local -a build_depend
     local -a run_depend
     local -a cmake_depend
@@ -116,13 +117,15 @@ modify_source() {
     fi
 
     for d in $deps; do
+        depend+="  <depend>$d</depend>"
         build_depend+="  <build_depend>$d</build_depend>"
-        run_depend+="  <run_depend>$d</run_depend>"
+        run_depend+="  <exec_depend>$d</exec_depend>"
         cmake_depend+="  $d"
     done
 
     if [[ $lang == cpp ]]; then
-        sed -i -e "s!DEPENDENCIES!${(j:\n:)build_depend}\n${(j:\n:)run_depend}!" ${dir}/package.xml
+        sed -i -e "s!DEPENDENCIES!${(j:\n:)depend}!" ${dir}/package.xml
+        # sed -i -e "s!DEPENDENCIES!${(j:\n:)build_depend}\n${(j:\n:)run_depend}!" ${dir}/package.xml
     elif [[ $lang == python ]]; then
         sed -i -e "s!DEPENDENCIES!${(j:\n:)run_depend}!" ${dir}/package.xml
     fi
