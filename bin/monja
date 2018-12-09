@@ -5,6 +5,15 @@ lang='cpp'
 template_dir="$( dirname $( realpath $0 ))/../templates"
 image_dir="$( dirname $( realpath $0 ))/../images"
 
+show_monja_girl(){
+    local text="$1"
+    # Center of monja girl
+    local center_column=36
+    local num_spaces="$(( $center_column + ${#text} / 2 ))"
+    local centered_text="$( printf "%*s" "$num_spaces" "$text" )"
+    sed -e "s#TEXT#$centered_text#" ${image_dir}/monja.txt
+}
+
 while getopts 'd:l:t:h' flag; do
     case "$flag" in
         d)
@@ -168,11 +177,7 @@ modify_source() {
     sed -i -e "s!MONJA_DEPENDENCIES!${concat_str}!" ${dir}/CMakeLists.txt
 }
 
-show_monja_girl(){
-    cat ${image_dir}/monja.txt
-}
-
-show_monja_girl
+show_monja_girl 'Monja Girl is now cooking your new package...'
 copy_dir "${template_dir}/${lang}" "${dest}/${pkg_name}"
 rename_files "${dest}/${pkg_name}" "${pkg_name}"
 modify_source "${dest}/${pkg_name}" "${pkg_name}" "${lang}" ${deps[@]}
