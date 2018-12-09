@@ -122,6 +122,8 @@ modify_source() {
         lang_dep='roscpp'
     elif [[ $lang == python ]]; then
         lang_dep='rospy'
+    elif [[ $lang == sample ]]; then
+        lang_dep='roscpp rospy'
     fi
     local lang_dep_in_deps=false
     for dep in ${deps[@]}; do
