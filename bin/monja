@@ -9,6 +9,10 @@ while getopts 'd:l:t:h' flag; do
     case "$flag" in
         d)
             dest="$OPTARG"
+            if [[ ! -d $dest ]]; then
+                echo "Destination directory $dest does not exist!" >&2
+                exit 1
+            fi
             ;;
         l)
             lang="$OPTARG"
@@ -17,12 +21,17 @@ while getopts 'd:l:t:h' flag; do
             template_dir="$OPTARG"
             ;;
         h)
-            echo "Usage: $0 [-h] [-d DESTINATION] [-l cpp|python] [-t TEMPLATE_DIR] <PKG_NAME> [DEPS]"
+            echo "Usage: $0 [-h] [-d DESTINATION] [-l cpp|python|sample] [-t TEMPLATE_DIR] <PKG_NAME> [DEPS]"
             exit 0
     esac
 
 done
 shift $(( $OPTIND - 1 ))
+
+if (( $# == 0 )); then
+    echo "Not enough argument!" >&2
+    exit 1
+fi
 
 pkg_name="$1"
 shift
@@ -132,16 +141,16 @@ modify_source() {
         cmake_depend+=( "$d" )
     done
 
-    if [[ $lang == cpp ]]; then
+    if [[ $lang == python ]]; then
         local concat_str=''
-        for d in ${depend[@]}; do
+        for d in ${exec_depend[@]}; do
             concat_str+="  ${d}\n"
         done
         concat_str="${concat_str%\\n}"
         sed -i -e "s!MONJA_DEPENDENCIES!${concat_str}!" ${dir}/package.xml
-    elif [[ $lang == python ]]; then
+    else
         local concat_str=''
-        for d in ${exec_depend[@]}; do
+        for d in ${depend[@]}; do
             concat_str+="  ${d}\n"
         done
         concat_str="${concat_str%\\n}"
