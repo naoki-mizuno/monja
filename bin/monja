@@ -124,14 +124,13 @@ modify_source() {
     done
 
     if [[ $lang == cpp ]]; then
-        sed -i -e "s!DEPENDENCIES!${(j:\n:)depend}!" ${dir}/package.xml
-        # sed -i -e "s!DEPENDENCIES!${(j:\n:)build_depend}\n${(j:\n:)run_depend}!" ${dir}/package.xml
+        sed -i -e "s!MONJA_DEPENDENCIES!${(j:\n:)depend}!" ${dir}/package.xml
     elif [[ $lang == python ]]; then
-        sed -i -e "s!DEPENDENCIES!${(j:\n:)exec_depend}!" ${dir}/package.xml
+        sed -i -e "s!MONJA_DEPENDENCIES!${(j:\n:)exec_depend}!" ${dir}/package.xml
     fi
 
     # CMakeLists.txt
-    sed -i -e "s!DEPENDENCIES!${(j:\n:)cmake_depend}!" ${dir}/CMakeLists.txt
+    sed -i -e "s!MONJA_DEPENDENCIES!${(j:\n:)cmake_depend}!" ${dir}/CMakeLists.txt
 }
 
 show_monja_girl(){

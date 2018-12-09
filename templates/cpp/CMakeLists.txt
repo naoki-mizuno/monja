@@ -13,14 +13,14 @@ else()
 endif()
 
 find_package(catkin REQUIRED COMPONENTS
-DEPENDENCIES
+MONJA_DEPENDENCIES
 )
 
 find_package(Boost REQUIRED)
 
 catkin_package(
   CATKIN_DEPENDS
-DEPENDENCIES
+MONJA_DEPENDENCIES
 )
 
 add_library(PKG_NAME

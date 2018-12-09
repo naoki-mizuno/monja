@@ -13,5 +13,5 @@
   <author>MY_NAME</author>
 
   <buildtool_depend>catkin</buildtool_depend>
-DEPENDENCIES
+MONJA_DEPENDENCIES
 </package>
