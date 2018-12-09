@@ -65,9 +65,10 @@ rename_files() {
 read_config() {
     local config_file="${XDG_CONFIG_HOME:-$HOME/.config}/monja/user.conf"
     local key="$1"
+    local default="$2"
 
     if ! [[ -f $config_file ]]; then
-        echo -n ''
+        echo -n "$default"
         return
     fi
 
@@ -80,12 +81,14 @@ modify_source() {
     local lang="$3"
     shift 3
     local deps=( $@ )
-    local my_name="$( git config --global user.name )"
-    local my_email="$( git config --global user.email )"
+    local default_name="$( git config --global user.name )"
+    local default_email="$( git config --global user.email )"
+    local my_name
+    local my_email
     local my_github
 
-    my_name="$( read_config name )"
-    my_email="$( read_config email )"
+    my_name="$( read_config name "$default_name" )"
+    my_email="$( read_config email "$default_email" )"
     my_github="$( read_config github )"
 
     for f in $( find "${dir}" -type f ); do
