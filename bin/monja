@@ -105,7 +105,7 @@ modify_source() {
     local lang_dep
     local -a depend
     local -a build_depend
-    local -a run_depend
+    local -a exec_depend
     local -a cmake_depend
     if [[ $lang == cpp ]]; then
         lang_dep='roscpp'
@@ -119,7 +119,7 @@ modify_source() {
     for d in $deps; do
         depend+="  <depend>$d</depend>"
         build_depend+="  <build_depend>$d</build_depend>"
-        run_depend+="  <exec_depend>$d</exec_depend>"
+        exec_depend+="  <exec_depend>$d</exec_depend>"
         cmake_depend+="  $d"
     done
 
@@ -127,7 +127,7 @@ modify_source() {
         sed -i -e "s!DEPENDENCIES!${(j:\n:)depend}!" ${dir}/package.xml
         # sed -i -e "s!DEPENDENCIES!${(j:\n:)build_depend}\n${(j:\n:)run_depend}!" ${dir}/package.xml
     elif [[ $lang == python ]]; then
-        sed -i -e "s!DEPENDENCIES!${(j:\n:)run_depend}!" ${dir}/package.xml
+        sed -i -e "s!DEPENDENCIES!${(j:\n:)exec_depend}!" ${dir}/package.xml
     fi
 
     # CMakeLists.txt
