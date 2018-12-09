@@ -140,9 +140,9 @@ modify_source() {
     elif [[ $lang == python ]]; then
         local concat_str=''
         for d in ${run_depend[@]}; do
-            concat_str+="  ${d}\\n"
+            concat_str+="  ${d}\n"
         done
-        concat_str="${concat_str%\n}"
+        concat_str="${concat_str%\\n}"
         sed -i -e "s!DEPENDENCIES!${concat_str}!" ${dir}/package.xml
     fi
 
