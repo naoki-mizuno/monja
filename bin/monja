@@ -19,7 +19,7 @@ while getopts 'd:l:t:h' flag; do
         d)
             dest="$OPTARG"
             if [[ ! -d $dest ]]; then
-                echo "Destination directory $dest does not exist!" >&2
+                show_monja_girl "Destination directory $dest does not exist!"
                 exit 1
             fi
             ;;
@@ -38,7 +38,7 @@ done
 shift $(( $OPTIND - 1 ))
 
 if (( $# == 0 )); then
-    echo "Not enough argument!" >&2
+    show_monja_girl "Not enough arguments!"
     exit 1
 fi
 
