@@ -3,11 +3,21 @@ project(PKG_NAME)
 
 find_package(catkin REQUIRED)
 
-catkin_package()
+# add_message_files(
+#   DIRECTORY msg
+#   FILES File1.msg
+# )
 
 catkin_python_setup()
 
-catkin_install_python(PROGRAMS
-    nodes/PKG_NAME_node.py
-    DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-)
+# generate_messages(
+#   DEPENDENCIES
+#   std_msgs
+# )
+
+catkin_package()
+
+# catkin_install_python(PROGRAMS
+#   nodes/PKG_NAME_node.py
+#   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+# )
