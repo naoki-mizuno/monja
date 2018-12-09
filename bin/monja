@@ -1,9 +1,9 @@
-#!/usr/bin/env zsh
+#!/usr/bin/env bash
 
-local dest="$PWD"
-local lang='cpp'
-local template_dir="${$( realpath ${${(%):-%N}} ):h}/../templates"
-local image_dir="${$( realpath ${${(%):-%N}} ):h}/../images"
+dest="$PWD"
+lang='cpp'
+template_dir="$( dirname $( realpath $0 ))/../templates"
+image_dir="$( dirname $( realpath $0 ))/../images"
 
 while getopts 'd:l:t:h' flag; do
     case "$flag" in
@@ -24,9 +24,9 @@ while getopts 'd:l:t:h' flag; do
 done
 shift $(( $OPTIND - 1 ))
 
-local pkg_name="$1"
-local -a deps
-deps=( $argv[2,-1] )
+pkg_name="$1"
+shift
+deps=( $@ )
 
 copy_dir() {
     local src="$1"
@@ -47,16 +47,15 @@ rename_files() {
     local dir="$1"
     local name="$2"
 
-    setopt nonomatch
     # First rename files
-    for f in "${dir}"/**/*PKG_NAME*(.); do
+    for f in $( find "${dir}" -type f -name '*PKG_NAME*' ); do
         if ! [[ -e $f ]]; then
             continue
         fi
         mv "$f" "$( echo "$f" | sed -e "s/\(.*\)PKG_NAME/\\1${name}/" )"
     done
     # Then directories
-    for f in "${dir}"/**/*PKG_NAME*(/); do
+    for f in $( find "${dir}" -type d -name '*PKG_NAME*' ); do
         if ! [[ -e $f ]]; then
             continue
         fi
@@ -67,9 +66,10 @@ rename_files() {
 read_config() {
     local config_file="${XDG_CONFIG_HOME:-$HOME/.config}/monja/user.conf"
     local key="$1"
+    local default="$2"
 
     if ! [[ -f $config_file ]]; then
-        echo -n ''
+        echo -n "$default"
         return
     fi
 
@@ -80,17 +80,19 @@ modify_source() {
     local dir="$1"
     local name="$2"
     local lang="$3"
-    local -a deps
-    deps=( $argv[4,-1] )
-    local my_name="$( git config --global user.name )"
-    local my_email="$( git config --global user.email )"
+    shift 3
+    local deps=( $@ )
+    local default_name="$( git config --global user.name )"
+    local default_email="$( git config --global user.email )"
+    local my_name
+    local my_email
     local my_github
 
-    my_name="$( read_config name )"
-    my_email="$( read_config email )"
+    my_name="$( read_config name "$default_name" )"
+    my_email="$( read_config email "$default_email" )"
     my_github="$( read_config github )"
 
-    for f in "${dir}"/**/*(.); do
+    for f in $( find "${dir}" -type f ); do
         sed -i -e "s/PKG_NAME/${name}/g" "$f"
         sed -i -e "s/MY_NAME/${my_name}/g" "$f"
         sed -i -e "s/MY_EMAIL/${my_email}/g" "$f"
@@ -112,25 +114,47 @@ modify_source() {
     elif [[ $lang == python ]]; then
         lang_dep='rospy'
     fi
-    if ! (( $deps[(I)$lang_dep] )); then
+    local lang_dep_in_deps=false
+    for dep in ${deps[@]}; do
+        if [[ $dep == $lang_dep ]]; then
+            lang_dep_in_deps=true
+            break
+        fi
+    done
+    if ! $lang_dep_in_deps; then
         deps=( $lang_dep ${deps[@]} )
     fi
 
-    for d in $deps; do
-        depend+="  <depend>$d</depend>"
-        build_depend+="  <build_depend>$d</build_depend>"
-        exec_depend+="  <exec_depend>$d</exec_depend>"
-        cmake_depend+="  $d"
+    for d in ${deps[@]}; do
+        depend+=( "<depend>$d</depend>" )
+        build_depend+=( "<build_depend>$d</build_depend>" )
+        exec_depend+=( "<exec_depend>$d</exec_depend>" )
+        cmake_depend+=( "$d" )
     done
 
     if [[ $lang == cpp ]]; then
-        sed -i -e "s!MONJA_DEPENDENCIES!${(j:\n:)depend}!" ${dir}/package.xml
+        local concat_str=''
+        for d in ${depend[@]}; do
+            concat_str+="  ${d}\n"
+        done
+        concat_str="${concat_str%\\n}"
+        sed -i -e "s!MONJA_DEPENDENCIES!${concat_str}!" ${dir}/package.xml
     elif [[ $lang == python ]]; then
-        sed -i -e "s!MONJA_DEPENDENCIES!${(j:\n:)exec_depend}!" ${dir}/package.xml
+        local concat_str=''
+        for d in ${exec_depend[@]}; do
+            concat_str+="  ${d}\n"
+        done
+        concat_str="${concat_str%\\n}"
+        sed -i -e "s!MONJA_DEPENDENCIES!${concat_str}!" ${dir}/package.xml
     fi
 
     # CMakeLists.txt
-    sed -i -e "s!MONJA_DEPENDENCIES!${(j:\n:)cmake_depend}!" ${dir}/CMakeLists.txt
+    local concat_str=''
+    for d in ${cmake_depend[@]}; do
+        concat_str+="  ${d}\n"
+    done
+    concat_str="${concat_str%\\n}"
+    sed -i -e "s!MONJA_DEPENDENCIES!${concat_str}!" ${dir}/CMakeLists.txt
 }
 
 show_monja_girl(){
@@ -140,6 +164,6 @@ show_monja_girl(){
 show_monja_girl
 copy_dir "${template_dir}/${lang}" "${dest}/${pkg_name}"
 rename_files "${dest}/${pkg_name}" "${pkg_name}"
-modify_source "${dest}/${pkg_name}" "${pkg_name}" "${lang}" ${deps}
+modify_source "${dest}/${pkg_name}" "${pkg_name}" "${lang}" ${deps[@]}
 
 echo 'Done!'

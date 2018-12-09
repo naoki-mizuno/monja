@@ -7,7 +7,8 @@ Create ROS packages with ease.
 
 ## Installation
 
-`zsh` is required to run the script. Put the script somewhere in your `$PATH`.
+Put the script somewhere in your `$PATH`.
+
 
 ## Usage
 
